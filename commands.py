@@ -35,7 +35,7 @@ class Commands:
 			"type": "section",
 			"text": {
 				"type": "mrkdwn",
-				"text": "*We noticed a " + sentiment + " :worried:. Do you want us to contact HR?*"
+				"text": "*We noticed your are a little bit " + sentiment + " lately :pensive:. Do you want to have a chat?*"
 					}
 				},
 				self.APPORVE_ACTION_BLOCK
@@ -63,7 +63,7 @@ class Commands:
                     "text": "Here are some suggestions"
                 },
                 "accessory": {
-                    "action_id": "action",
+                    "action_id": "action_helpme",
                     "type": "static_select",
                     "placeholder": {
                         "type": "plain_text",
@@ -123,20 +123,20 @@ class Commands:
 					"text": {
 						"type": "plain_text",
 						"emoji": True,
-						"text": "Approve"
+						"text": "Yes! Lets have a chit chat"
 					},
 					"style": "primary",
-					"action_id": "approve_request"
+					"action_id": "approve_request_sentiment"
 				},
 				{
 					"type": "button",
 					"text": {
 						"type": "plain_text",
 						"emoji": True,
-						"text": "Deny"
+						"text": "No I dont like to talk."
 					},
 					"style": "danger",
-					"action_id": "deny_request"
+					"action_id": "deny_request_sentiment"
 				},
 				{
 					"type": "button",
@@ -145,7 +145,83 @@ class Commands:
 						"emoji": True,
 						"text": "More info"
 					},
-					"action_id": "request_info"
+					"action_id": "request_info_sentiment"
 				}
 			]
 		}
+    
+    def get_approved_sentiment(self):
+        view = {
+            "type": "modal",
+            "title": {
+                "type": "plain_text",
+                "text": "Sentiment",
+                "emoji": True
+            },
+            "submit": {
+                "type": "plain_text",
+                "text": "Submit",
+                "emoji": True
+            },
+            "close": {
+                "type": "plain_text",
+                "text": "Cancel",
+                "emoji": True
+            },
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "Waar situeert het probleem zich?"
+                    },
+                    "accessory": {
+                        "type": "multi_static_select",
+                        "placeholder": {
+                            "type": "plain_text",
+                            "text": "Kies opties",
+                            "emoji": True
+                        },
+                        "options": [
+                            {
+                                "text": {
+                                    "type": "plain_text",
+                                    "text": "Externe werkplek",
+                                    "emoji": True
+                                },
+                                "value": "value-0"
+                            },
+                            {
+                                "text": {
+                                    "type": "plain_text",
+                                    "text": "Privé probleem",
+                                    "emoji": True
+                                },
+                                "value": "value-1"
+                            },
+                            {
+                                "text": {
+                                    "type": "plain_text",
+                                    "text": "Andere",
+                                    "emoji": True
+                                },
+                                "value": "value-2"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "input",
+                    "element": {
+                        "type": "plain_text_input",
+                        "multiline": True
+                    },
+                    "label": {
+                        "type": "plain_text",
+                        "text": "Wil je er iets over kwijt?",
+                        "emoji": True
+                    }
+                }
+            ]
+        }
+        return view

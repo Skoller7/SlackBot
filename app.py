@@ -25,8 +25,7 @@ slack_interactive_endpoint_adapter = SlackEventAdapter(os.environ['SLACK_SIGNING
 
 slack_web_client = WebClient(token=os.environ['SLACK_BOT_TOKEN'])
 
-listOfNames = { aaron, alexey, anissa, anouchka, attila, axel, bart, ben, bert, berten, bianca, cathy, cedric, chantal, christophe, dario, dary, dave, dennis, didier, dieter, domien, dylan, eline, ellen,fabio,farhood, ferra, frederik, hadrien, hilde, jan, jasper, jef, jello, jens, jeoren, joachim, joel, johan
-jonas, joost, jorne , Julie, kevin, kim, koen, kristof, kut, luca, maarten, mario, mathias, maurice, melissa, michael, nick, nicky, nico, niels, oliver, peter, philip, pieter-jan, robin, roeland, ruben, rubin, sarah, seb, sigrid, stephanie, theriessa, thierry, tom, torsten, vincent, wesley, yannick}
+listOfNames = { 'aaron', 'alexey', 'anissa', 'anouchka', 'attila', 'axel', 'bart', 'ben', 'bert', 'berten', 'bianca', 'cathy', 'cedric', 'chantal', 'christophe', 'dario', 'dary', 'dave', 'dennis', 'didier', 'dieter', 'domien', 'dylan', 'eline', 'ellen','fabio','farhood', 'ferra', 'frederik', 'hadrien', 'hilde', 'jan', 'jasper', 'jef', 'jello', 'jens', 'jeroen', 'joachim', 'joel', 'johan', 'jonas', 'joost', 'jorne' , 'julie', 'kevin', 'kim', 'koen', 'kristof', 'kurt', 'luca', 'maarten', 'mario', 'mathias', 'maurice', 'melissa', 'michael', 'nick', 'nicky', 'nico', 'niels', 'oliver', 'peter', 'philip', 'pieter-jan', 'robin', 'roeland', 'ruben', 'rubin', 'sarah', 'seb', 'sigrid', 'stephanie', 'theriessa', 'thierry', 'tom', 'torsten', 'vincent', 'wesley', 'yannick'}
 
 #/helpme command.
 @app.route('/slack/helpme', methods=['POST'])
@@ -44,7 +43,7 @@ def sentiment():
     #If this comes from slack & it has the bot verification token then.
     if request.form['token'] == verification_token:
         commands = Commands(request.form['channel_id'])
-        message = commands.get_sentiment("negatief")
+        message = commands.get_sentiment("down")
         return message
 
 
@@ -80,43 +79,60 @@ def find_replies():
         user_id = message['user']['id']
         trigger_id = message['trigger_id']
        
-        #this is how we get the value out of it.
-        message_value = message_action['selected_option']['value']
-        #here we check what value is inside of it and create interactivity
-        if message_value == '!trello':
+        print('message_action:')
+        print(message_action)
+        #Here we check what kind of message it is. This is from an option menu.
+        #An example of this is the /helpme command.
+        #info locals: https://stackoverflow.com/questions/843277/how-do-i-check-if-a-variable-exists
+        if message_action['action_id'] == 'action_helpme':
+            #this is how we get the value out of it.
+            message_value = message_action['selected_option']['value']
+            #here we check what value is inside of it and create interactivity
+            if message_value == '!trello':
 
-            #you can also return the user id so it send him a pm.
-            commands = Commands(user_id)
-            message = commands.get_message_trello()
-            answer = slack_web_client.chat_postMessage(
-                channel = user_id,
-                text="Here is some information of how i can be used with Trello:"
-            )
-            return ("",200)
+                #you can also return the user id so it send him a pm.
+                commands = Commands(user_id)
+                message = commands.get_message_trello()
+                answer = slack_web_client.chat_postMessage(
+                    channel = user_id,
+                    text="Here is some information of how i can be used with Trello:"
+                )
+                return ("",200)
 
-        elif message_value == '!review':
-            commands = Commands(user_id)
-            message = commands.get_message_review()
-            slack_web_client.chat_postMessage(**message)
-            return ("",200)
-        elif message_value == '!meeting':
-            commands = Commands(user_id)
-            message = commands.get_meeting_planner()
-            slack_web_client.views_open(
-                trigger_id = trigger_id,
-                view =  message
-            )
-            return ("",200)
-        elif message_value == '!sentiment':
-            commands = Commands(user_id)
-            message = commands.get_sentiment_modal()
-            slack_web_client.views_open(
-                response_action = "clear",
-                trigger_id = trigger_id,
-                view = message
-            )
-            return ("",200)
-        #check if it comes from a submitted modal & accept verification token
+            elif message_value == '!review':
+                commands = Commands(user_id)
+                message = commands.get_message_review()
+                slack_web_client.chat_postMessage(**message)
+                return ("",200)
+            elif message_value == '!meeting':
+                commands = Commands(user_id)
+                message = commands.get_meeting_planner()
+                slack_web_client.views_open(
+                    trigger_id = trigger_id,
+                    view =  message
+                )
+                return ("",200)
+            elif message_value == '!sentiment':
+                commands = Commands(user_id)
+                message = commands.get_sentiment_modal()
+                slack_web_client.views_open(
+                    response_action = "clear",
+                    trigger_id = trigger_id,
+                    view = message
+                )
+                return ("",200)
+            #if it is this action we know its a "approve block"
+        elif message_action['action_id'] == 'approve_request_sentiment':
+                #Show sentiment approval modal.
+                commands = Commands(user_id)
+                message = commands.get_approved_sentiment()
+                slack_web_client.views_open(
+                    trigger_id = trigger_id,
+                    view = message
+                )
+                return("",200)
+
+    #check if it comes from a submitted modal & accept verification token
     elif message['type'] == 'view_submission' and message['token'] == verification_token:
 
         print('message of view submission')
@@ -129,17 +145,20 @@ def find_replies():
         print("trigger Id :")
         print(trigger_id)
         
-        
-        if submit_name == "Sentiment Analyse":
-            commands = Commands(user_id)
+        #if then name of the modal is sentiment then do this if statement.
+        if submit_name == "Sentiment":
+            #nadenken over wat we met die info willen doen
+            #bericht sturen naar HR? Indien ja navragen aan persoon
+            #of dat oké is ,....
+            """commands = Commands(user_id)
             messageZ = commands.get_specific_sentiment_info()
             slack_web_client.views_push(
                 response_action = "push",
                 trigger_id = trigger_id,
                 view = messageZ
-            )
+            )"""
             return("",200)
 
         
     else:
-        return  jsonify({'error': 'bad'})
+        return  ("",200)
