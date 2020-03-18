@@ -42,7 +42,28 @@ class Commands:
             ],
         }
 
+    def get_feedback_block(self):
+        return {
+            "ts": self.timestamp,
+            "channel": self.channel,
+            "username": self.username,
+            "icon_emoji": self.icon_emoji,
+            "blocks": [
+                {
+				"type": "section",
+                "text": {
+                    "type": "plain_text",
+                    "text": "Kan je me even feedback geven of mijn predictie juist of fout was?",
+                    "emoji": True
+                        }
+				},
+				self.GET_FEEDBACK_BLOCK
+            ],
+        }
+        
+
 ####################### All data block ########################
+
     HELP_BLOCK = {
         "type": "section",
         "text": {
@@ -149,6 +170,34 @@ class Commands:
 				}
 			]
 		}
+    
+
+    GET_FEEDBACK_BLOCK = {
+                "type": "actions",
+                "elements": [
+                    {
+                        "type": "button",
+                        "text": {
+                            "type": "plain_text",
+                            "emoji": True,
+                            "text": "Je predicite klopte"
+                        },
+                        "style": "primary",
+                        "action_id": "last_prediction_positive"
+                    },
+                    {
+                        "type": "button",
+                        "text": {
+                            "type": "plain_text",
+                            "emoji": True,
+                            "text": "Uw predictie was fout"
+                        },
+                        "style": "danger",
+                        "action_id": "last_prediction_negative"
+                    }
+                ]
+        }
+        
     
     def get_approved_sentiment(self):
         view = {

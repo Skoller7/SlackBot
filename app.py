@@ -48,10 +48,6 @@ def sentiment():
 
 
 
-
-
-
-
 # ============= Interactive components ============= #
 # When a user clicks on interactive blocks
 # an example of this is the !help block where they will chose a select click.
@@ -131,6 +127,13 @@ def find_replies():
                     view = message
                 )
                 return("",200)
+        elif message_action['action_id'] == 'deny_request_sentiment':
+            #if they dont want to submit a form.
+            commands = Commands(user_id)
+            message = commands.get_feedback_block()
+            slack_web_client.chat_postMessage(**message)
+            return ("",200)
+        
 
     #check if it comes from a submitted modal & accept verification token
     elif message['type'] == 'view_submission' and message['token'] == verification_token:
