@@ -9,6 +9,7 @@ from slackeventsapi import SlackEventAdapter
 import ssl as ssl_lib
 import certifi
 from commands import Commands
+from predictions import Predict
 
 #Setting up flask to host the chatbot:
 app = Flask(__name__)
@@ -77,6 +78,8 @@ def message(payload):
 
         #functie om sentiment uit te voeren
         #TODO Wesley
+        prediction = Predict()
+        prediction.predict(context)
 
         #after sentiment -> reset context
         context = ""
