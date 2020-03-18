@@ -14,6 +14,9 @@ from commands import Commands
 app = Flask(__name__)
 CORS(app)
 
+context = ""
+previous_user_id = ""
+
 #To retrieve messages from the /Slack/events url.
 slack_events_adapter = SlackEventAdapter(os.environ['SLACK_SIGNING_SECRET'], "/slack",app)
 
@@ -46,7 +49,43 @@ def sentiment():
         message = commands.get_sentiment("down")
         return message
 
+# ============== Message Events ============= #
+# When a user sends a DM, the event type will be 'message'.
+# Here we'll link the message callback to the 'message' event.
 
+@slack_events_adapter.on("message")
+def message(payload):
+    """Display the onboarding welcome message after receiving a message
+    that contains "start".
+    """
+    event = payload.get("event", {})
+    
+    channel_id = event.get("channel")
+    user_id = event.get("user")
+    text = event.get("text")
+
+    global previous_user_id
+    global context
+
+    text = text.lower()
+    print('read message:' + text + " " + user_id)
+    #if the talker is still the same:
+    if previous_user_id == user_id:
+        context = context + " " + text
+        print("same user 2nd context:" + context)
+    elif previous_user_id != user_id:
+
+        #functie om sentiment uit te voeren
+        #TODO Wesley
+
+        #after sentiment -> reset context
+        context = ""
+        context = context + text
+        print("new user context:" + context)
+        #previous naar huidige zetten.
+        previous_user_id = user_id
+
+    
 
 # ============= Interactive components ============= #
 # When a user clicks on interactive blocks
@@ -134,6 +173,26 @@ def find_replies():
             slack_web_client.chat_postMessage(**message)
             return ("",200)
         
+        elif message_action['action_id'] == 'request_info_sentiment':
+            commands = Commands(user_id)
+            message = commands.get_info_sentiment()
+            slack_web_client.views_open(
+                trigger_id = trigger_id,
+                view = message
+            )
+            return("",200)
+        
+        #when this gets called it means that the AI predicted
+        #the sentiment correctly -> Positive feedback loop.
+        elif message_action['action_id'] == 'last_prediction_positive':
+            
+            return("",200)
+        
+        #this means that the last prediction was negative (auto feedback)
+        elif message_action['action_id'] == 'last_prediction_negative':
+
+            return("", 200)
+
 
     #check if it comes from a submitted modal & accept verification token
     elif message['type'] == 'view_submission' and message['token'] == verification_token:
@@ -160,6 +219,8 @@ def find_replies():
                 trigger_id = trigger_id,
                 view = messageZ
             )"""
+            return("",200)
+        elif submit_name == "Sentiment Info":
             return("",200)
 
         

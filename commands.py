@@ -198,6 +198,58 @@ class Commands:
                 ]
         }
         
+    def get_info_sentiment(self):
+        view = {
+            "type": "modal",
+            "title": {
+                "type": "plain_text",
+                "text": "Sentiment Info",
+                "emoji": True
+            },
+            "submit": {
+                "type": "plain_text",
+                "text": "Submit",
+                "emoji": True
+            },
+            "close": {
+                "type": "plain_text",
+                "text": "Cancel",
+                "emoji": True
+            },
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "Hey, ik ben <NameOfBot>, ik probeer erachter te koemn hoe jij je op je werkplek voelt. Geen zorgen, al de informatie die ik tezien krijg is GDPR approved."
+                    }
+                },
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "*Hoe ga ik tewerk?*",
+                        "emoji": True
+                    }
+                },
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "Ik lees je chatberichten in maar ik verwijder er al de namen uit zodat voor mij elke persoon Gilbert noemt. Bij deze aangenaam kennismaking Gilbert. Vervolgens laten we je chatberichten door mijn geheugen gaan en ik zal dan proberne aan te tonen of je je goed voelt in je vel. Want dit is voor Bewire zeer belangrijk."
+                    }
+                },
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "Achteraf is er een ge-automatiseerd feedback systeem. Via deze manier wordt ik dus beter met de tijd, alvast sorry voor moest ik een paar keer fout zijn.",
+                        "emoji": True
+                    }
+                }
+            ]
+        }
+        return view
     
     def get_approved_sentiment(self):
         view = {
