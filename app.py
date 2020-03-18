@@ -25,6 +25,8 @@ slack_interactive_endpoint_adapter = SlackEventAdapter(os.environ['SLACK_SIGNING
 
 slack_web_client = WebClient(token=os.environ['SLACK_BOT_TOKEN'])
 
+listOfNames = { aaron, alexey, anissa, anouchka, attila, axel, bart, ben, bert, berten, bianca, cathy, cedric, chantal, christophe, dario, dary, dave, dennis, didier, dieter, domien, dylan, eline, ellen,fabio,farhood, ferra, frederik, hadrien, hilde, jan, jasper, jef, jello, jens, jeoren, joachim, joel, johan
+jonas, joost, jorne , Julie, kevin, kim, koen, kristof, kut, luca, maarten, mario, mathias, maurice, melissa, michael, nick, nicky, nico, niels, oliver, peter, philip, pieter-jan, robin, roeland, ruben, rubin, sarah, seb, sigrid, stephanie, theriessa, thierry, tom, torsten, vincent, wesley, yannick}
 
 #/helpme command.
 @app.route('/slack/helpme', methods=['POST'])
@@ -33,6 +35,16 @@ def helpme():
     if request.form['token'] == verification_token:
         commands = Commands(request.form['channel_id'])
         message = commands.get_message_help()
+        return message
+
+
+#/sentiment command.
+@app.route('/slack/sentiment', methods=['POST'])
+def sentiment():
+    #If this comes from slack & it has the bot verification token then.
+    if request.form['token'] == verification_token:
+        commands = Commands(request.form['channel_id'])
+        message = commands.get_sentiment("negatief")
         return message
 
 
